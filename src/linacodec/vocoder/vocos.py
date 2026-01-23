@@ -53,6 +53,7 @@ class Vocos(nn.Module):
         self.upsampler = upsampler
         self.head_48k = head_48k
         self.freq_range = 4000
+        self.return_48k = True
 
     @classmethod
     def from_hparams(cls, config_path: str) -> Vocos:
@@ -130,4 +131,7 @@ class Vocos(nn.Module):
         pred_audio = pred_audio[:, :pred_audio2.shape[1]]
         with autocast(enabled=False):
             merged_audio = crossover_merge_linkwitz_riley(pred_audio.float(), pred_audio2.float(), cutoff=self.freq_range)
-        return merged_audio
+        if self.return_48k == True:
+            return merged_audio
+        else:
+            return pred_audio2
