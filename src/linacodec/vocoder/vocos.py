@@ -10,7 +10,7 @@ from vocos.feature_extractors import FeatureExtractor, EncodecFeatures
 from vocos.heads import FourierHead
 from vocos.models import Backbone
 from vocos.heads import ISTFTHead
-from torch.cuda.amp import autocast
+##from torch.cuda.amp import autocast
 import torchaudio.functional as AF
 
 from .linkwitz import crossover_merge_linkwitz_riley
@@ -129,8 +129,8 @@ class Vocos(nn.Module):
         pred_audio2 = self.head(features.transpose(1, 2))
         pred_audio2 = AF.resample(pred_audio2, 24000, 48000)
         pred_audio = pred_audio[:, :pred_audio2.shape[1]]
-        with autocast(enabled=False):
-            merged_audio = crossover_merge_linkwitz_riley(pred_audio.float(), pred_audio2.float(), cutoff=self.freq_range)
+        ##with autocast(enabled=False):
+        merged_audio = crossover_merge_linkwitz_riley(pred_audio.float(), pred_audio2.float(), cutoff=self.freq_range)
         if self.return_48k == True:
             return merged_audio
         else:
