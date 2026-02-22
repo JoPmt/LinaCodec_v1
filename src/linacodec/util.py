@@ -3,7 +3,7 @@ import logging
 import torch
 import torch.nn as nn
 device=torch.device("cpu")
-d_type=torch.bfloat16
+d_type=torch.float32
 # Configure logger
 logger = logging.getLogger("kanade_tokenizer")
 logger.setLevel(logging.INFO)
