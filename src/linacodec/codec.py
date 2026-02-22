@@ -31,7 +31,7 @@ class LinaCodec:
     def encode(self, audio_path):
         """encodes audio into discrete content tokens at a rate of 12.5 t/s or 25 t/s and 128 dim global embedding, single codebook"""
         ## load audio and extract features
-        audio = load_audio(audio_path, sample_rate=self.model.config.sample_rate)..to(dtype=d_type).to(device).eval()
+        audio = load_audio(audio_path, sample_rate=self.model.config.sample_rate).to(dtype=d_type).to(device).eval()
         features = self.model.encode(audio)
         return features.content_token_indices, features.global_embedding
 
