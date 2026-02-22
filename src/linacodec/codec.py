@@ -3,7 +3,8 @@ from linacodec.vocoder.vocos import Vocos
 from huggingface_hub import snapshot_download
 from .model import LinaCodecModel
 from .util import load_audio, load_vocoder, vocode
-
+device=torch.device("cpu")
+d_type=torch.float32
 class LinaCodec:
     def __init__(self, model_path=None):
 
@@ -12,15 +13,15 @@ class LinaCodec:
             model_path = snapshot_download("YatharthS/LinaCodec")
 
         ## loads linacodec model
-        model = LinaCodecModel.from_pretrained(config_path=f"{model_path}/config.yaml", weights_path=f'{model_path}/model.safetensors').eval().cpu()
+        model = LinaCodecModel.from_pretrained(config_path=f"{model_path}/config.yaml", weights_path=f'{model_path}/model.safetensors').to(dtype=d_type).to(device).eval()
 
         ## loads distilled wavlm model, 97m params --> 25m + 18m params
         model.load_distilled_wavlm(f"{model_path}/wavlm_encoder.pth")
-        model.wavlm_model.cpu()
+        model.wavlm_model..to(dtype=d_type).to(device).eval()
         model.distilled_layers = [6, 9]
 
         ## loads vocoder, based of custom vocos and hifigan model with snake
-        vocos = Vocos.from_hparams(f'{model_path}/vocoder/config.yaml').cpu()
+        vocos = Vocos.from_hparams(f'{model_path}/vocoder/config.yaml').to(dtype=d_type).to(device).eval()
         vocos.load_state_dict(torch.load(f'{model_path}/vocoder/pytorch_model.bin'))
 
         self.model = model
@@ -30,12 +31,12 @@ class LinaCodec:
     def encode(self, audio_path):
         """encodes audio into discrete content tokens at a rate of 12.5 t/s or 25 t/s and 128 dim global embedding, single codebook"""
         ## load audio and extract features
-        audio = load_audio(audio_path, sample_rate=self.model.config.sample_rate).cpu()
+        audio = load_audio(audio_path, sample_rate=self.model.config.sample_rate)..to(dtype=d_type).to(device).eval()
         features = self.model.encode(audio)
         return features.content_token_indices, features.global_embedding
 
     @torch.no_grad()
-    @torch.autocast(device_type='cpu', dtype=torch.bfloat16)
+    @torch.autocast(device_type='cpu', dtype=torch.float32)
     def decode(self, content_tokens, global_embedding):
         """decodes tokens and embedding into 48khz waveform"""
         ## decode tokens and embedding to mel spectrogram
