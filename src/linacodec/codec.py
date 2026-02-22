@@ -17,7 +17,7 @@ class LinaCodec:
 
         ## loads distilled wavlm model, 97m params --> 25m + 18m params
         model.load_distilled_wavlm(f"{model_path}/wavlm_encoder.pth")
-        model.wavlm_model..to(dtype=d_type).to(device).eval()
+        model.wavlm_model.to(dtype=d_type).to(device).eval()
         model.distilled_layers = [6, 9]
 
         ## loads vocoder, based of custom vocos and hifigan model with snake
