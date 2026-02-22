@@ -70,10 +70,10 @@ class LinaCodecModel(nn.Module):
         
     def load_distilled_wavlm(self, path: str):
         """Loads distilled wavlm model, 970m params --> 250m params"""
-        ckpt = torch.load(path)
+        ckpt = torch.load(path, map_location="cpu")
         wavlm_model = wav2vec2_model(**ckpt["config"])
         result = wavlm_model.load_state_dict(ckpt["state_dict"], strict=False)
-        self.wavlm_model = wavlm_model.cpu()
+        self.wavlm_model = wavlm_model.to(torch.float32)
         self.distilled_layers = [6, 8] ## can set custom, 6-8 seems best however
 
     def _init_ssl_extractor(self, config: LinaCodecConfig, ssl_feature_extractor: SSLFeatureExtractor):
@@ -392,8 +392,8 @@ class LinaCodecModel(nn.Module):
             # Load from HuggingFace Hub
             from huggingface_hub import hf_hub_download
 
-            config_path = hf_hub_download(repo_id, "config.yaml", revision=revision)
-            weights_path = hf_hub_download(repo_id, "model.safetensors", revision=revision)
+            config_path = hf_hub_download(repo_id, "config.yaml", revision="main")
+            weights_path = hf_hub_download(repo_id, "model.safetensors", revision="main")
         else:
             # Check local paths
             if config_path is None or weights_path is None:
