@@ -2,7 +2,8 @@ import logging
 
 import torch
 import torch.nn as nn
-
+device=torch.device("cpu")
+d_type=torch.bfloat16
 # Configure logger
 logger = logging.getLogger("kanade_tokenizer")
 logger.setLevel(logging.INFO)
@@ -67,7 +68,7 @@ def load_vocoder():
     from vocos import Vocos
 
     model = Vocos.from_pretrained("charactr/vocos-mel-24khz")
-    model = model.eval()
+    model = model.to(dtype=d_type).to(device).eval()
     return model
 
 
