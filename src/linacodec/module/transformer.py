@@ -13,7 +13,7 @@ from .adaln_zero import AdaLNZero
 
 logger = get_logger()
 
-
+device=torch.device("cpu")
 try:
     from flash_attn import flash_attn_func, flash_attn_with_kvcache
 
@@ -24,7 +24,7 @@ except ImportError:
 
 def precompute_freqs_cis(dim: int, end: int, theta: float = 10000.0):
     freqs = 1.0 / (theta ** (torch.arange(0, dim, 2)[: (dim // 2)].float() / dim))
-    t = torch.arange(end, device=freqs.device, dtype=torch.float32)
+    t = torch.arange(end, device=device, dtype=torch.float32)
     freqs = torch.outer(t, freqs)
     freqs_cis = torch.polar(torch.ones_like(freqs), freqs)  # complex64
     return freqs_cis
